@@ -7,7 +7,9 @@ import numpy as np
 # GeoJSON or SHP 파일을 불러옵니다 (GeoJSON은 한국 경계 데이터를 쉽게 구할 수 있음)
 # https://github.com/southkorea/southkorea-maps 에서 행정구역 GeoJSON을 다운로드할 수 있습니다.
 # korea_admin_boundaries = "korea_admin_boundaries.json"  # 파일 경로를 맞게 설정하세요.
-korea_admin_boundaries = "./geo_kr/skorea-municipalities-2018-geo.json"
+# korea_admin_boundaries = "./geo_kr/skorea-municipalities-2018-geo.json"
+korea_admin_boundaries = "./geo_kr/skorea-submunicipalities-2018-topo.json"
+
 gdf = gpd.read_file(korea_admin_boundaries)
 
 # Step 2: 임의의 내한성 데이터 추가

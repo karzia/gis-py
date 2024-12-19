@@ -26,17 +26,36 @@ for f in hzfiles:
     gdfs.append(gd)
 
 
+full = gpd.GeoDataFrame(pd.concat(gdfs,ignore_index=True))
+
 # Step 65: 내한성 지도 시각화
-fig, ax = plt.subplots(1, 1, figsize=(10, 14))
+# 각 data를 따로 표현
+
+
+
+fig, ax = plt.subplots(1, len(gdfs), figsize=(10, 14))
+
+i=0
 for gdf in gdfs:
-    gdf.plot(
-            #column='pm_icon',
-            cmap='coolwarm',
+    full.plot(
+            column='pm_icon',
+            #cmap='Grey',
+            color='gray',
             #legend=True,
             edgecolor="black",
-            linewidth=0.9,
+            linewidth=0.1,
             #alpha=0.3,
-            ax=ax)
+            ax=ax[i])
+   
+    gdf.plot(
+            color='gold',  # 특정 구간 강조 색상
+            edgecolor="black",
+            legend=True,
+            linewidth=1.0,
+            alpha=1.0,
+            ax=ax[i])
+    
+    i+=1
 
 
 # highlight = gdf[gdf['pm_icon'] == 'KR_7a']
@@ -48,8 +67,8 @@ for gdf in gdfs:
 #     ax=ax)
 
 # 지도 타이틀 추가
-plt.title("Korean Plant Hardiness Zones", fontsize=15)
-plt.axis("off")
+#plt.title("Korean Plant Hardiness Zones", fontsize=11)
+#plt.axis("off")
 plt.show()
 
 #plt.waitforbuttonpress()

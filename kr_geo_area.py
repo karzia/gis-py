@@ -389,14 +389,14 @@ for g in gdf['name'].unique() :
 fig, ax = plt.subplots(1, 1, figsize=(10, 14))
 
 gdf.plot(column='hzone',
-        cmap='coolwarm',
+        #cmap='coolwarm',
         legend=True,
         edgecolor="black",
         linewidth=0.9,
         ax=ax)
 
 # 지도 타이틀 추가
-plt.title("Korean Plant Hardiness Zones", fontsize=15)
+plt.title("Korean Place", fontsize=15)
 plt.axis("off")
 plt.show()
 
