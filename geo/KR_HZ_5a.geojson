@@ -1,0 +1,7 @@
+{
+"type": "FeatureCollection",
+                                                                                                                                  
+"features": [
+{ "type": "Feature", "properties": { "pm_icon": "KR_5a" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 127.5666, 38.0000 ], [ 127.5333, 38.0000 ], [ 127.5333, 38.0333 ], [ 127.5666, 38.0333 ], [ 127.5666, 38.0000 ] ] ] } }
+]
+}
