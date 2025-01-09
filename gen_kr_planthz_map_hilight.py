@@ -14,17 +14,18 @@ hzfiles = [
     'KR_HZ_9a.geojson',
     'KR_HZ_9b.geojson',
 ]
-colors = {
-    "KR_HZ_5a": "#77A7F0",
-    "KR_HZ_5b": "#77DCFD",
-    "KR_HZ_6a": "#779FB7",
-    "KR_HZ_6b": "#DCF1CB",
-    "KR_HZ_7a": "#A2F97D",
-    "KR_HZ_7b": "#8AB37D",
-    "KR_HZ_8a": "#F7F97D",
-    "KR_HZ_8b": "#F7CE7D",
-    "KR_HZ_9a": "#B19F7D",
-    "KR_HZ_9b": "#CB797D",
+
+hzones = {
+    "KR_HZ_5a": {'color':"#77A7F0", 'desc':'-28.9°C to -26.1°C'},
+    "KR_HZ_5b": {'color':"#77DCFD", 'desc':'-26.1°C to -23.3°C'},
+    "KR_HZ_6a": {'color':"#779FB7", 'desc':'-23.3°C to -20.6°C'},
+    "KR_HZ_6b": {'color':"#DCF1CB", 'desc':'-20.6°C to -17.8°C'},
+    "KR_HZ_7a": {'color':"#A2F97D", 'desc':'-17.8°C to -15°C'},
+    "KR_HZ_7b": {'color':"#8AB37D", 'desc':'-15°C to -12.2°C'},
+    "KR_HZ_8a": {'color':"#F7F97D", 'desc':'-12.2°C to -9.4°C'},
+    "KR_HZ_8b": {'color':"#F7CE7D", 'desc':'-9.4°C to -6.7°C'},
+    "KR_HZ_9a": {'color':"#B19F7D", 'desc':'-6.7°C to -3.9°C'},
+    "KR_HZ_9b": {'color':"#CB797D", 'desc':'-3.9°C to -1.1°C'},
 }
 
 highlightStyle = {
@@ -36,8 +37,7 @@ highlightStyle = {
 }
 
 # 지도 생성
-m = folium.Map(location=[36.2635727, 128.0286009], zoom_start=7,
-               no_touch=True)
+m = folium.Map(location=[36.2635727, 128.0286009], zoom_start=7, no_touch=True)
 
 # GeoJSON 레이어 추가
 geojson_layers_js = []
@@ -47,14 +47,14 @@ for f in hzfiles:
     layer = folium.GeoJson(
         gd,
         name=key,
-        style_function=lambda x, col=colors[key]: {
+        style_function=lambda x, col=hzones[key]['color']: {
             "fillColor": col,
             "fillOpacity": 0.7,
             "weight": 0.7,
             "opacity": 0.9,
             "color": col,
         },
-        highlight_function=lambda x: highlightStyle,
+     #   highlight_function=lambda x: highlightStyle,
     )
     layer.add_to(m)
 
@@ -65,16 +65,16 @@ for f in hzfiles:
 legend_html = """
 <div id="legend" style="
     position: fixed; 
-    bottom: 50px; left: 50px; width: 200px; height: 350px; 
+    bottom: 50px; left: 50px; width: fit-content; height: 350px; 
     background-color: white; z-index:9999; font-size:14px; 
     border:2px solid grey; padding: 10px;">
     <b>범례 (Legend)</b><br>
 """
 
-for key, color in colors.items():
+for key, val in hzones.items():
     legend_html += f"""
-    <div onclick="highlightFeature('{key}')" style="cursor: pointer;">
-        <i style="background: {color}; width: 10px; height: 10px; display: inline-block;"></i> {key}<br>
+    <div id="legend-item-{key}" onclick="highlightFeature('{key}')" style="cursor: pointer; padding: 5px;">
+        <i style="background: {val['color']}; width: 10px; height: 10px; display: inline-block;"></i> {key} ({val['desc']})<br>
     </div>
     """
 
@@ -88,12 +88,41 @@ legend_html += """
         return params.get('highlight');
     }
 
+    // 선택된 Legend의 배경색 변경
+    let previouslySelectedLegend = null;
+
+    function highlightLegend(key) {
+
+        if (previouslySelectedLegend) {
+            // 이전 선택된 Legend 항목 초기화
+            previouslySelectedLegend.style.backgroundColor = "";
+        }
+
+        const selectedLegend = document.getElementById(`legend-item-${key}`);
+        if(selectedLegend == previouslySelectedLegend){
+            previouslySelectedLegend.style.backgroundColor = "";
+            previouslySelectedLegend = null;
+            return;
+        }
+        if (selectedLegend) {
+            selectedLegend.style.backgroundColor = "lightgreen";
+            previouslySelectedLegend = selectedLegend;
+        }
+
+    }
+
     // 특정 레이어 강조
     function highlightFeature(key) {
+        // Legend 배경색 변경
+        highlightLegend(key);
+
+        // 기본 스타일로 복원
         Object.keys(window.geojsonLayers).forEach(function(layerKey) {
-            // 기본 스타일로 복원
+            
             window.geojsonLayers[layerKey].resetStyle();
         });
+        
+        if(previouslySelectedLegend === null) return;
 
         // 선택된 피처 하이라이트
         if (window.geojsonLayers[key]) {
@@ -105,15 +134,11 @@ legend_html += """
                 color: "green",
             });
         }
+
+  
     }
 
-    // 페이지 로드 시 highlight 파라미터로 특정 레이어 강조
-    document.addEventListener('DOMContentLoaded', function() {
-        const highlightKey = getHighlightParam();
-        if (highlightKey && window.geojsonLayers[highlightKey]) {
-            highlightFeature(highlightKey);
-        }
-    });
+   
 </script>
 """
 
@@ -125,12 +150,12 @@ geojson_layers_script = f"""
         window.geojsonLayers = {{
             {', '.join(geojson_layers_js)}
         }};
-
-        const highlightKey = getHighlightParam();
+         const highlightKey = getHighlightParam();
         if (highlightKey && window.geojsonLayers[highlightKey]) {{
-            highlightFeature(highlightKey);}}
+            highlightFeature(highlightKey);
         }}
-    )
+    }}
+    );
 """
 
 # 범례와 JavaScript 추가
@@ -140,4 +165,4 @@ m.get_root().script.add_child(folium.Element(geojson_layers_script))
 # 결과 저장
 folium.TileLayer().add_to(m)
 folium.LayerControl().add_to(m)
-m.save("map6.html")
+m.save("map.html")
